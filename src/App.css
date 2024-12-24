@@ -1,0 +1,132 @@
+/* @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap"); */
+@import url('https://fonts.googleapis.com/css2?family=Updock&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Pinyon+Script&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+* {
+  font-family: "Montserrat", sans-serif;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Responsive styles for Prism code blocks */
+.responsive-code-block {
+  overflow-x: auto; /* Allow horizontal scrolling for long code lines */
+  padding: 1rem; /* Add some padding */
+  background-color: #2d2d2d; /* Match Prism dark theme */
+  border-radius: 8px; /* Rounded corners */
+  margin: 1rem 0; /* Spacing between blocks */
+  width: 100%; /* Ensure the block uses full width */
+}
+
+.responsive-code-block pre {
+  margin: 0;
+  white-space: pre-wrap; /* Allow wrapping for better responsiveness */
+  word-wrap: break-word; /* Break long words */
+  width: 100%;
+}
+
+
+
+.cerUserName {
+  font-family: "Pinyon Script", Updock, cursive;
+}
+
+.cerCourseTitle, .cerCourseDate {
+  font-family: "Libre Baskerville", serif;
+
+}
+
+@layer utilities {
+  @variants responsive {
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      /* IE and Edge */
+      scrollbar-width: none;
+      /* Firefox */
+    }
+  }
+}
+
+.toastBody {
+  font-family: "Roboto", sans-serif;
+  color: #000;
+}
+
+.toastProgress {
+  background: #000 !important;
+}
+
+.toastBodyDark {
+  font-family: "Roboto", sans-serif;
+  color: #fff;
+}
+
+.toastProgressDark {
+  background: #fff !important;
+}
+
+.textarea-container {
+  position: relative;
+}
+
+.textarea {
+  resize: none;
+  overflow-y: hidden;
+}
+
+.textarea::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}
+
+h2 {
+  font-size: 1.5rem /* 24px */;
+  line-height: 2rem /* 32px */;
+  padding-top: 1rem /* 16px */;
+  font-weight: 900;
+}
+/* --neutral-800: var(--secondary-5);
+--neutral-400: #b7b4c7;
+--neutral-100: white;
+--neutral-300: #d9d7e6;
+--secondary-5: #13111a;
+--secondary-1: #c831f0;
+--secondary-2: #285dad;
+--secondary-3: #2cc2e0;
+--secondary-4: var(--secondary-2);
+--neutral-700: #302c3f;
+--neutral-600: #5e5b71;
+--neutral-500: #ad24e7;
+--neutral-200: #f5f4fa;
+--shadow-card-default: #0000001a;
+--shadow-card-large: #00000059;
+--shadow-card-large-dark: #00000073; */
+
+
+.color-empty {
+  fill: #ebedf0; /* Light grey color for empty/zero-score days */
+}
+
+.color-scale-1 {
+  fill: #c6e48b; /* Light green for lower scores */
+}
+
+.color-scale-2 {
+  fill: #7bc96f; /* Medium green for higher scores */
+}
+
+.color-scale-3 {
+  fill: #239a3b; /* Dark green for completed days */
+}
+

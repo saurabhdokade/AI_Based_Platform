@@ -1,0 +1,1380 @@
+/* eslint-disable no-useless-catch */
+import { Drawer, Navbar, Sidebar } from "flowbite-react";
+import React, { useEffect, useRef, useState } from "react";
+import LogoComponent from "../components/LogoComponent";
+import { FiMenu, FiX } from "react-icons/fi";
+import DarkModeToggle from "../components/DarkModeToggle";
+import TruncatedText from "../components/TruncatedText";
+import { useLocation, useNavigate } from "react-router-dom";
+import { IoIosArrowDown } from "react-icons/io";
+import StyledText from "../components/styledText";
+import YouTube from "react-youtube";
+import { toast } from "react-toastify";
+import { logo, name } from "../constants";
+import axiosInstance from "../axios";
+import { IoChatbubbleEllipses } from "react-icons/io5";
+import { FaCheck } from "react-icons/fa";
+import { IoSend } from "react-icons/io5";
+import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+import "react-circular-progressbar/dist/styles.css";
+import Quiz from "../quiz/Quiz";
+import Projects from "../ProjectSuggestion/Projects";
+import CourseLogoComponent from "../components/CourseLogoComponent";
+import axios from "axios";
+
+const Course = () => {
+  const [userUID, setUserUID] = useState(sessionStorage.getItem("uid"));
+  const [isOpen, setIsOpen] = useState(false);
+  const [key, setkey] = useState("");
+  const { state } = useLocation();
+  const {
+    mainTopic,
+    type,
+    courseId,
+    end,
+    useUserApiKey,
+    apiKey,
+    userunsplashkey,
+  } = state || {};
+  const jsonData = JSON.parse(sessionStorage.getItem("jsonData"));
+  const storedTheme = sessionStorage.getItem("darkMode");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [selected, setSelected] = useState("");
+  const [theory, setTheory] = useState("");
+  const [media, setMedia] = useState("");
+  const [percentage, setPercentage] = useState(0);
+  const [isComplete, setIsCompleted] = useState(false);
+  const navigate = useNavigate();
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [isOpenDrawer, setIsOpenDrawer] = useState(false);
+  const [projectSuggestions, setProjectSuggestions] = useState(null);
+  const [submissionInstructions, setSubmissionInstructions] = useState(null);
+  const [quizAvailable, setQuizAvailable] = useState(false);
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [showProjects, setShowProjects] = useState(false);
+
+  const [mtopicex, setMtopicex] = useState("");
+  const [msubtopicex, setSubMtopicex] = useState("");
+  const [idex, setidex] = useState("");
+  const [urlex, seturlex] = useState("");
+  const [aiExplanation, setAiExplanation] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleOnClose = () => setIsOpenDrawer(false);
+
+  const CountDoneTopics = () => {
+    let doneCount = 0;
+    let totalTopics = 0;
+
+    jsonData[mainTopic.toLowerCase()].forEach((topic) => {
+      topic.subtopics.forEach((subtopic) => {
+        if (subtopic.done) {
+          doneCount++;
+        }
+        totalTopics++;
+      });
+    });
+    const completionPercentage = Math.round((doneCount / totalTopics) * 100);
+    setPercentage(completionPercentage);
+    if (completionPercentage >= 100) {
+      setIsCompleted(true);
+      setQuizAvailable(true);
+    }
+
+    // Add this: Update progress in the database
+    updateProgressInDatabase(completionPercentage);
+  };
+
+  // New function to update progress in the database
+  const updateProgressInDatabase = async (progress) => {
+    try {
+      const response = await axiosInstance.post("/api/updateProgress", {
+        courseId: courseId,
+        progress: progress,
+        completed: progress >= 100, // Add this line to send completion status
+      });
+      if (response.data.success) {
+        // console.log('Progress updated in database');
+      } else {
+        // console.error('Failed to update progress in database');
+      }
+    } catch (error) {
+      console.error("Error updating progress in database:", error);
+      toast.error("Error updating progress"); // Error in updating the progress
+    }
+  };
+
+  const opts = {
+    height: "390",
+    width: "640",
+  };
+
+  const optsMobile = {
+    height: "250px",
+    width: "100%",
+  };
+  //toast config
+  const showToast = async (msg) => {
+    toast(msg, {
+      position: "bottom-center",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+  };
+
+  const finish = async () => {
+    if (percentage < 100) {
+      toast.warning(
+        "Warning: Your progress is below 100%, but you have to take project forcefully."
+      );
+    }
+  
+    try {
+      
+      const dataToSend = {
+        prompt: `Suggest a mini project based on the topics covered in this course. Include the following details: project description, objectives, and key points.`,
+      };
+      const postURL = "/api/project-suggestions";
+      const res = await axiosInstance.post(postURL, dataToSend);
+      setProjectSuggestions(res.data.suggestions);
+  
+      setSubmissionInstructions(
+        `To submit your project, please push your code to a GitHub repository and share the repository link with us via email at assessment@cehpoint.co.in. Additionally, you can send a short video explaining your project to our submission email. Thank you!`
+      );
+      const certificateUrl = await getCertificateUrl();
+  
+      if (certificateUrl) {
+        window.open(certificateUrl, "_blank");
+      } else {
+        // console.error("Certificate URL is not available.");
+      }
+    } catch (error) {
+      // console.error("Error fetching project suggestions:", error);
+      toast.error("Error in project suggestions"); // toast error in project suggestion
+    }
+  };
+  
+
+  const getCertificateUrl = async () => {
+    try {
+      const response = await fetch("/api/get-certificate-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: userUID }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok.");
+      }
+
+      const data = await response.json();
+      return data.certificateUrl;
+    } catch (error) {
+      // console.error("Error fetching certificate URL:", error);
+      toast.error("Error in generating certificate"); // Error in generating certificate
+      return null;
+    }
+  };
+
+
+
+  useEffect(() => {
+    loadMessages();
+    const CountDoneTopics = () => {
+      let doneCount = 0;
+      let totalTopics = 0;
+
+      jsonData[mainTopic.toLowerCase()].forEach((topic) => {
+        topic.subtopics.forEach((subtopic) => {
+          if (subtopic.done) {
+            doneCount++;
+          }
+          totalTopics++;
+        });
+      });
+      const completionPercentage = Math.round((doneCount / totalTopics) * 100);
+      setPercentage(completionPercentage);
+      if (completionPercentage >= "100") {
+        setIsCompleted(true);
+      }
+    };
+
+    if (!mainTopic) {
+      navigate("/create");
+    } else {
+      if (percentage >= "100") {
+        setIsCompleted(true);
+      }
+
+      const mainTopicData = jsonData[mainTopic.toLowerCase()][0];
+      const firstSubtopic = mainTopicData.subtopics[0];
+      firstSubtopic.done = true;
+      setSelected(firstSubtopic.title);
+      setTheory(firstSubtopic.theory);
+      setAiExplanation(firstSubtopic.aiExplanation)
+
+      if (type === "video & text course") {
+        setMedia(firstSubtopic.youtube);
+      } else {
+        setMedia(firstSubtopic.image);
+      }
+      sessionStorage.setItem("jsonData", JSON.stringify(jsonData));
+      CountDoneTopics();
+    }
+    // eslint-disable-next-line
+  }, []);
+
+  const generatePrompt = (firstSubtopicTitle, mTopic, mainTopic) => {
+    // Define the maximum number of words allowed in the prompt
+    const maxWords = 10;
+  
+    // Function to split the string into words and trim if necessary
+    const truncateText = (text, maxWords) => {
+      const words = text.split(' ');
+      return words.slice(0, maxWords).join(' ');
+    };
+  
+    // Combine the titles and check if the word count exceeds the limit
+    const combinedTitle = `${firstSubtopicTitle} related to mTopic ${mTopic} on ${mainTopic} in English.`;
+    const wordsInPrompt = combinedTitle.split(' ');
+  
+    // If the word count exceeds the limit, use a truncated version
+    if (wordsInPrompt.length > maxWords) {
+      return `tutorials on ${truncateText(firstSubtopicTitle, maxWords)} related to ${truncateText(mainTopic, maxWords)} on ${mainTopic} in English.`;
+    } else {
+      return combinedTitle;
+    }
+  };
+
+  const handleSelect = (selectedTopics, selectedSub) => {
+    const topicKey = mainTopic.toLowerCase();
+    const mTopic = jsonData[topicKey]?.find(
+        (topic) => topic.title === selectedTopics
+    );
+    const mSubTopic = mTopic?.subtopics.find(
+        (subtopic) => subtopic.title === selectedSub
+    );
+
+    if (!mSubTopic) {
+        toast.error("Subtopic not found.");
+        return;
+    }
+
+    const { theory, youtube, image, aiExplanation } = mSubTopic;
+
+    // If theory is not present, we need to generate it
+    if (!theory) {
+        // const query = `"${mSubTopic.title}" tutorial in "${mTopic.title}" for "${mainTopic}" in English. Provide examples and explanations and make sure it is in English. Avoid other languages except English.`;
+        const query = generatePrompt(mSubTopic.title, mTopic.title, mainTopic);
+        const id = toast.loading("Please wait...");
+
+        if (type === "video & text course") {
+            setMtopicex(mTopic.title);
+            setSubMtopicex(mSubTopic.title);
+            setidex(id);
+            seturlex(query);
+            sendVideo(query, selectedTopics, selectedSub, id, mSubTopic.title);
+        } else {
+            const prompt = `Explain me about this subtopic of ${mTopic.title} with examples: ${mSubTopic.title}. Please strictly don't give additional resources and images.`;
+            const promptImage = `Example of ${mSubTopic.title} in ${mTopic.title}`;
+            sendPrompt(prompt, promptImage, selectedTopics, selectedSub, id);
+        }
+        return; // Exit the function early since we are generating content
+    }
+
+    // If theory exists, we set the relevant states
+    setSelected(mSubTopic.title);
+    setTheory(theory);
+    setMedia(type === "video & text course" ? youtube : image);
+
+    // Set the AI explanation only if it exists
+     if (aiExplanation) {
+        // Introduce a delay of 1 second (1000 milliseconds)
+        setTimeout(() => {
+            setAiExplanation(aiExplanation);
+        }, 1000); // Adjust the delay as needed
+    } else {
+        setAiExplanation(""); // Optionally clear the explanation if it doesn't exist
+    }
+};
+
+  async function sendPrompt(
+    prompt,
+    promptImage,
+    topics,
+    sub,
+    id,
+    retries = 3,
+    delay = 1000
+  ) {
+    const dataToSend = {
+      prompt: prompt,
+    };
+    try {
+      const postURL = "/api/generate";
+      const res = await axiosInstance.post(postURL, dataToSend);
+      const generatedText = res.data.text;
+      // console.log(generatedText)
+      const htmlContent = generatedText;
+
+      // Attempt to parse and send image
+      try {
+        const parsedJson = htmlContent;
+        await sendImage(parsedJson, promptImage, topics, sub, id);
+      } catch (error) {
+        // console.warn("Error in sendImage, retrying...", error);
+        if (retries > 0) {
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          return sendPrompt(
+            prompt,
+            promptImage,
+            topics,
+            sub,
+            id,
+            retries - 1,
+            delay * 2
+          );
+        } else {
+          // console.error(
+          //   "Failed to send prompt after multiple attempts:",
+          //   error
+          // );
+          throw error;
+        }
+      }
+    } catch (error) {
+      // console.warn("Error in sendPrompt, retrying...", error);
+      if (retries > 0) {
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        return sendPrompt(
+          prompt,
+          promptImage,
+          topics,
+          sub,
+          id,
+          retries - 1,
+          delay * 2
+        );
+      } else {
+        // console.error("Failed to send prompt after multiple attempts:", error);
+
+        throw error;
+      }
+    }
+  }
+
+  async function sendImage(
+    parsedJson,
+    promptImage,
+    topics,
+    sub,
+    id,
+    retries = 3,
+    delay = 1000
+  ) {
+    const dataToSend = {
+      prompt: promptImage,
+    };
+
+    try {
+      const postURL = "/api/image";
+      const res = await axiosInstance.post(postURL, dataToSend);
+
+      const generatedText = res.data.url;
+
+      await sendData(generatedText, parsedJson, topics, sub, id);
+    } catch (error) {
+      if (retries > 0) {
+        showToast("Error while generating  image , retrying");
+        // console.warn(`Retrying in ${delay}ms... (${retries} attempts left)`);
+        await new Promise((resolve) => setTimeout(resolve, delay)); // Wait before retrying
+        return sendImage(
+          parsedJson,
+          promptImage,
+          topics,
+          sub,
+          id,
+          retries - 1,
+          delay * 2
+        );
+      } else {
+        // console.error("Failed to send image after multiple attempts:", error);
+        toast.error("Failed to generate image"); // Toast Failed to generate image
+        throw error; // If retries are over then throw the error
+      }
+    }
+  }
+
+  async function sendData(image, theory, topics, sub, id) {
+    const mTopic = jsonData[mainTopic.toLowerCase()].find(
+      (topic) => topic.title === topics
+    );
+    const mSubTopic = mTopic?.subtopics.find(
+      (subtopic) => subtopic.title === sub
+    );
+    mSubTopic.theory = theory;
+    mSubTopic.image = image;
+    setSelected(mSubTopic.title);
+
+    toast.update(id, {
+      render: "Done!",
+      type: "success",
+      isLoading: false,
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+    });
+    setTheory(theory);
+    if (type === "video & text course") {
+      setMedia(mSubTopic.youtube);
+    } else {
+      setMedia(image);
+    }
+    mSubTopic.done = true;
+    updateCourse();
+  }
+
+  async function sendDataVideo(image, theory, topics, sub, id) {
+    const mTopic = jsonData[mainTopic.toLowerCase()].find(
+      (topic) => topic.title === topics
+    );
+    const mSubTopic = mTopic?.subtopics.find(
+      (subtopic) => subtopic.title === sub
+    );
+    mSubTopic.theory = theory;
+    mSubTopic.youtube = image;
+    setSelected(mSubTopic.title);
+
+    toast.update(id, {
+      render: "Done!",
+      type: "success",
+      isLoading: false,
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+    });
+    setTheory(theory);
+    // console.log("AII")
+    // console.log(mSubTopic.aiExplanation)
+    // setAiExplanation(mSubTopic.aiExplanation)
+    if (type === "video & text course") {
+      setMedia(image);
+    } else {
+      setMedia(mSubTopic.image);
+    }
+    mSubTopic.done = true;
+    updateCourse();
+  }
+
+  async function updateCourse() {
+    CountDoneTopics();
+    sessionStorage.setItem("jsonData", JSON.stringify(jsonData));
+    const content = JSON.stringify(jsonData);
+
+    const chunkSize = 1000000; // 1MB chunks
+    const contentChunks = [];
+
+    for (let i = 0; i < content.length; i += chunkSize) {
+      contentChunks.push(content.slice(i, i + chunkSize));
+    }
+
+    const postURL = "/api/update";
+
+    for (let i = 0; i < contentChunks.length; i++) {
+      const dataToSend = {
+        content: contentChunks[i],
+        courseId: courseId,
+        chunkIndex: i,
+        totalChunks: contentChunks.length,
+      };
+
+      try {
+        const response = await axiosInstance.post(postURL, dataToSend);
+
+        if (i === contentChunks.length - 1) {
+          // console.log("Course updated successfully");
+          // Handle successful update (e.g., show a success message)
+        }
+      } catch (error) {
+        // console.error("Error updating course chunk:", error);
+        // Instead of recursive call, you might want to implement a retry mechanism
+        // or handle the error more gracefully
+        throw error; // This will stop the update process if any chunk fails
+      }
+    }
+  }
+
+  async function sendVideo(
+    query,
+    mTopic,
+    mSubTopic,
+    id,
+    subtop,
+    retries = 3,
+    delay = 1000
+  ) {
+    const dataToSend = {
+      prompt: query,
+    };
+    try {
+      const postURL = "/api/yt";
+      const res = await axiosInstance.post(postURL, dataToSend);
+      const generatedText = res.data.url;
+      // console.log("URL -> ", generatedText)
+      //sending the transcript
+      await sendTranscript(generatedText, mTopic, mSubTopic, id, subtop);
+      // await handleAIGeneratedExplanation(
+      //   generatedText,
+      //   mTopic,
+      //   mSubTopic,
+      //   id,
+      //   subtop
+      // );
+    } catch (error) {
+      if (retries > 0) {
+        // console.warn(`Retrying in ${delay}ms... (${retries} attempts left)`);
+        await new Promise((resolve) => setTimeout(resolve, delay)); // Waiting before retrying
+        return sendVideo(
+          query,
+          mTopic,
+          mSubTopic,
+          id,
+          subtop,
+          retries - 1,
+          delay * 2
+        ); // Exponential backoff
+      } else {
+        // console.error("Failed to send video after multiple attempts:", error);
+        toast.error("Failed to generate video"); // toast erorr in video
+        throw error; // If retries are over then throw the error
+      }
+    }
+  }
+
+  async function fetchWithRetries(url, retries = 3, delay = 800) {
+    while (retries > 0) {
+      try {
+        const postURL = "/api/transcript";
+        // console.log("Actual before");
+        
+        // Sending the POST request
+        const res = await axiosInstance.post(postURL, { prompt: url });
+        // console.log("Actual");
+        // console.log(res.data);
+  
+        return res.data; // Return the response data when the request is successful
+      } catch (error) {
+        // console.warn(`Error during request, retrying... (${3 - retries + 1})`, error);
+  
+        // Retry if the error is temporary
+        if (retries === 1) {
+          throw error; // After the last retry, throw the error to be handled in the main function
+        }
+        await new Promise(resolve => setTimeout(resolve, delay));
+        retries--;
+      }
+    }
+  }
+  
+  async function sendTranscript(
+    url,
+    mTopic,
+    mSubTopic,
+    id,
+    subtop,
+    retries = 3,
+    delay = 800
+  ) {
+    const dataToSend = {
+      prompt: url,
+    };
+  
+    try {
+      // Use fetchWithRetries for retry logic
+      const resData = await fetchWithRetries(url, retries, delay);
+      
+      // console.log("Response Data:", resData);
+  
+      // Process the response data
+      try {
+        const generatedText = resData.url; // Assuming response contains a `url` key with the transcript
+        const allText = generatedText.map((item) => item.text); // Assuming `generatedText` is an array
+        const concatenatedText = allText.join(" ");
+  
+        const prompt = `Summarize this theory in a teaching way, focusing on : ${concatenatedText}.`;
+        await sendSummery(prompt, url, mTopic, mSubTopic, id);
+      } catch (error) {
+        // console.warn("Error processing transcript response, retrying with fallback...", error);
+  
+        const fallbackPrompt = `Explain the subtopic of ${mTopic} with examples: ${subtop}. Please strictly avoid additional resources and images.`;
+  
+        if (retries > 0) {
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          return sendTranscript(url, mTopic, mSubTopic, id, subtop, retries - 1, delay * 2);
+        } else {
+          await sendSummery(fallbackPrompt, url, mTopic, mSubTopic, id);
+        }
+      }
+    } catch (error) {
+      // console.warn("Error fetching transcript, retrying with fallback...", error);
+  
+      const fallbackPrompt = `Explain the subtopic of ${mTopic} with examples: ${subtop}. Please strictly avoid additional resources and images.`;
+  
+      if (retries > 0) {
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        return sendTranscript(url, mTopic, mSubTopic, id, subtop, retries - 1, delay * 2);
+      } else {
+        toast.dismiss(id);
+        toast.error("Error in generating subtopic");
+        await sendSummery(fallbackPrompt, url, mTopic, mSubTopic, id);
+      }
+    }
+  }
+  
+
+  async function sendSummery(
+    prompt,
+    url,
+    mTopic,
+    mSubTopic,
+    id,
+    retries = 3,
+    delay = 1000,
+    totalRetries = 0,
+    chunkSize = 1000,
+    overlap = 200
+  ) {
+    // Function to break prompt into smaller chunks with overlap
+    function chunkPrompt(text) {
+      const chunks = [];
+      for (let i = 0; i < text.length; i += chunkSize - overlap) {
+        chunks.push(text.slice(i, i + chunkSize));
+      }
+      return chunks;
+    }
+
+    const chunks = chunkPrompt(prompt);
+    const summaries = [];
+
+    for (const chunk of chunks) {
+      const dataToSend = {
+        prompt: `Provide a summary in context: ${chunk}`,
+      };
+
+      try {
+        const postURL = "/api/generate";
+        const res = await axiosInstance.post(postURL, dataToSend);
+        const generatedText = res.data.text;
+        summaries.push(generatedText);
+      } catch (error) {
+        // console.warn("Error fetching summary for chunk, retrying...", error);
+        if (retries > 0) {
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          return sendSummery(
+            chunk,
+            url,
+            mTopic,
+            mSubTopic,
+            id,
+            retries - 1,
+            delay * 2,
+            totalRetries + 1,
+            chunkSize,
+            overlap
+          );
+        } else {
+          throw new Error(
+            "Failed to generate summary for chunk after multiple retries."
+          );
+        }
+      }
+    }
+
+    // Combine the summaries into a final summary
+    const finalSummary = summaries.join(" ");
+
+    // Process the final summary
+    try {
+      await sendDataVideo(url, finalSummary, mTopic, mSubTopic, id);
+    } catch (error) {
+      // console.warn(
+      //   "Error processing final summary response, retrying...",
+      //   error
+      // );
+      if (retries > 0) {
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        return sendSummery(
+          prompt,
+          url,
+          mTopic,
+          mSubTopic,
+          id,
+          retries - 1,
+          delay * 2,
+          totalRetries + 1,
+          chunkSize,
+          overlap
+        );
+      } else {
+        throw new Error(
+          "Failed to process final summary after multiple retries."
+        );
+      }
+    }
+  }
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const handleOpenClose = (keys) => {
+    setIsOpen(!isOpen);
+    setkey(keys);
+  };
+
+  const defaultMessage = `<p>Hey there! I'm your AI teacher. If you have any questions about your ${mainTopic} course, whether it's about videos, images, or theory, just ask me. I'm here to clear your doubts.</p>`;
+  const defaultPrompt = `I have a doubt about this topic :- ${mainTopic}. Please clarify my doubt in very short :- `;
+
+  const loadMessages = async () => {
+    try {
+      const jsonValue = sessionStorage.getItem(mainTopic);
+      if (jsonValue !== null) {
+        setMessages(JSON.parse(jsonValue));
+      } else {
+        const newMessages = [
+          ...messages,
+          { text: defaultMessage, sender: "bot" },
+        ];
+        setMessages(newMessages);
+        await storeLocal(newMessages);
+      }
+    } catch (error) {
+      loadMessages();
+    }
+  };
+
+  const sendMessage = async () => {
+    if (newMessage.trim() === "") return;
+
+    const userMessage = { text: newMessage, sender: "user" };
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
+    await storeLocal(updatedMessages);
+    setNewMessage("");
+
+    let mainPrompt = defaultPrompt + newMessage;
+    const dataToSend = { prompt: mainPrompt };
+    const url = "/api/chat";
+
+    // console.log("Sending request to:", url);
+    // console.log("Request data:", dataToSend);
+
+    const maxRetries = 3;
+    let attempts = 0;
+
+    while (attempts < maxRetries) {
+      try {
+        const response = await axiosInstance.post(url, dataToSend);
+
+        if (response.data.success === false) {
+          // console.warn("Request failed, retrying...");
+          attempts++;
+        } else {
+          const botMessage = { text: response.data.text, sender: "bot" };
+          const updatedMessagesWithBot = [...updatedMessages, botMessage];
+          setMessages(updatedMessagesWithBot);
+          await storeLocal(updatedMessagesWithBot);
+          return;
+        }
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          // console.error("Resource not found (404):", error.response.data);
+          alert("The resource you are trying to access does not exist.");
+          return;
+        } else {
+          // console.error(
+          //   "Error sending message:",
+          //   error.response ? error.response.data : error.message
+          // );
+        }
+        attempts++;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+
+    alert(
+      "Failed to send the message after several attempts. Please try again later."
+    );
+  };
+
+  async function storeLocal(messages) {
+    try {
+      sessionStorage.setItem(mainTopic, JSON.stringify(messages));
+    } catch (error) {
+      sessionStorage.setItem(mainTopic, JSON.stringify(messages));
+    }
+  }
+
+  const style = {
+    root: {
+      base: "h-full",
+      collapsed: {
+        on: "w-16",
+        off: "w-64",
+      },
+      inner:
+        "no-scrollbar h-full overflow-y-auto overflow-x-hidden rounded-none border-black dark:border-white md:border-r  bg-white py-4 px-3 dark:bg-black",
+    },
+  };
+
+  const renderTopicsAndSubtopics = (topics) => {
+    try {
+      return (
+        <div>
+          {topics.map((topic) => (
+            <Sidebar.ItemGroup key={topic.title}>
+              <div className="relative inline-block text-left ">
+                <button
+                  onClick={() => handleOpenClose(topic.title)}
+                  type="button"
+                  className="inline-flex text-start text-base w-64 font-bold  text-black dark:text-white"
+                >
+                  {topic.title}
+                  <IoIosArrowDown className="-mr-1 ml-2 h-3 w-3 mt-2" />
+                </button>
+
+                {isOpen && key === topic.title && (
+                  <div className="origin-top-right mt-2 pr-4">
+                    <div
+                      className="py-1"
+                      role="menu"
+                      aria-orientation="vertical"
+                      aria-labelledby="options-menu"
+                    >
+                      {topic.subtopics.map((subtopic) => (
+                        <button
+                          key={subtopic.title}
+                          onClick={() => {
+                            handleSelect(topic.title, subtopic.title);
+
+                            setMtopicex(topic.title);
+                            setSubMtopicex(subtopic.title);
+
+                            setShowQuiz(false);
+                            setShowProjects(false);
+                          }}
+                          className="flex py-2 text-sm flex-row items-center font-normal text-black dark:text-white  text-start"
+                          role="menuitem"
+                        >
+                          {subtopic.title}
+                          {subtopic.done === true ? (
+                            <FaCheck className="ml-2" size={12} />
+                          ) : (
+                            <></>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Sidebar.ItemGroup>
+          ))}
+            <Sidebar.ItemGroup>
+              <button
+                onClick={() => {if (percentage < 100) {
+                  toast.warning(
+                    "Warning: Your progress is below 100%, but you are taking Quiz forcefully."
+                  );
+                  setShowQuiz(true);
+                  setShowProjects(false);
+                }
+                  
+                }}
+                className="text-start text-base w-full px-3 py-2 font-bold text-white dark:text-white bg-gray-900 rounded-lg flex items-center justify-between"
+              >
+                Take Quiz
+                <div className="h-4 w-4 bg-red-500 rounded-full animate-pulse"></div>
+              </button>
+
+              <div className="w-full bg-black/70 dark:bg-white/70 h-[1px]"></div>
+              <button
+                onClick={() => {
+                  if (percentage < 100) {
+                    toast.warning(
+                      "Warning: Your progress is below 100%, but you are taking Project forcefully."
+                    );
+                    setShowQuiz(false);
+                    setShowProjects(true);
+                  }
+                }}
+                className="text-start text-base w-full px-3 py-2 font-bold text-white dark:text-white bg-gray-900 rounded-lg flex items-center justify-between mb-10"
+              >
+                Projects
+              </button>
+            </Sidebar.ItemGroup>
+          
+        </div>
+      );
+    } catch (error) {
+      return (
+        <div>
+          {topics.map((topic) => (
+            <Sidebar.ItemGroup key={topic.Title}>
+              <div className="relative inline-block text-left ">
+                <button
+                  onClick={() => handleOpenClose(topic.Title)}
+                  type="button"
+                  className="inline-flex text-start text-base w-64 font-bold  text-black dark:text-white"
+                >
+                  {topic.Title}
+                  <IoIosArrowDown className="-mr-1 ml-2 h-3 w-3 mt-2" />
+                </button>
+
+                {isOpen && key === topic.Title && (
+                  <div className="origin-top-right mt-2 pr-4">
+                    <div
+                      className="py-1"
+                      role="menu"
+                      aria-orientation="vertical"
+                      aria-labelledby="options-menu"
+                    >
+                      {topic.Subtopics.map((subtopic) => (
+                        <p
+                          key={subtopic.Title}
+                          onClick={() =>
+                            handleSelect(topic.Title, subtopic.Title)
+                          }
+                          className="flex py-2 flex-row text-sm items-center font-normal text-black dark:text-white  text-start"
+                          role="menuitem"
+                        >
+                          {subtopic.Title}
+                          {subtopic.done === true ? (
+                            <FaCheck className="ml-2" size={12} />
+                          ) : (
+                            <></>
+                          )}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Sidebar.ItemGroup>
+          ))}
+        </div>
+      );
+    }
+  };
+
+  // useEffect(() => {
+  //   console.log(mtopicex, msubtopicex, mainTopic)
+  //   console.log(jsonData)
+  // }, [mtopicex, msubtopicex, mainTopic, jsonData])
+  
+
+  const handleAIGeneratedExplanation = async () => {
+    setIsLoading(true);
+    const dataToSend = {
+      prompt: `Provide a detailed explanation of the subtopic "${msubtopicex}" under its parent topic "${mtopicex}" and the main title is "${mainTopic}". Format the explanation as valid HTML with headings, paragraphs, and code blocks where necessary. Include examples, avoid additional resources or images, and focus on clarity and simplicity for learners.`,
+      useUserApiKey: useUserApiKey,
+      apiKey: apiKey,
+    };    
+
+    try {
+      const response = await axiosInstance.post("/api/aiGeneratedExplanation", dataToSend);
+
+      if (response.data.success) {
+          const explanation = response.data.explanation;
+
+          // console.log(explanation)
+
+          setAiExplanation(explanation)
+
+          // Assuming jsonData is already structured and contains subtopics
+          const topicKey = mainTopic.toLowerCase();
+          const mTopic = jsonData[topicKey]?.find(topic => topic.title === mtopicex);
+          const mSubTopic = mTopic?.subtopics.find(subtopic => subtopic.title === msubtopicex);
+
+          if (mSubTopic) {
+              mSubTopic.aiExplanation = explanation; // Dynamically add the explanation to the existing subtopic
+          }
+
+          // Persist the updated jsonData back to the database
+          await updateCourse(); // Ensure this function sends the updated jsonData
+      } else {
+          // console.log("Error generating explanation:", response.data.message);
+      }
+  } catch (error) {
+      // console.error("Request failed:", error);
+  } finally {
+      setIsLoading(false);
+  }
+};
+
+  useEffect(() => {
+    if (isComplete) {
+      const fetchProjectSuggestions = async () => {
+        try {
+          const response = await fetch("/api/project-suggestions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              prompt: `Generate project suggestions for ${mainTopic}`,
+            }),
+          });
+          const data = await response.json();
+          setProjectSuggestions(data.suggestions);
+          setSubmissionInstructions(
+            "To submit your project, please create a GitHub repository and share the link with us via email."
+          );
+        } catch (error) {
+          // console.error("Error fetching project suggestions:", error);
+        }
+      };
+
+      fetchProjectSuggestions();
+    }
+  }, [isComplete, mainTopic]);
+
+  return (
+    <>
+      {!mainTopic ? null : (
+        <div>
+          <div
+            onClick={() => setIsOpenDrawer(true)}
+            className="m-5 fixed bottom-4 right-4 z-40 w-12 h-12 bg-black text-white rounded-full flex justify-center items-center shadow-md dark:text-black dark:bg-white"
+          >
+            <IoChatbubbleEllipses size={20} />
+          </div>
+          <div className="flex bg-white dark:bg-black md:hidden pb-10 overflow-y-auto">
+            <div
+              className={`fixed inset-0 bg-black opacity-50 z-50 ${
+                isSidebarOpen ? "block" : "hidden"
+              }`}
+              onClick={toggleSidebar}
+            ></div>
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <div>
+                <Navbar
+                  fluid
+                  className="py-3 dark:bg-black bg-white border-black dark:border-white md:border-b"
+                >
+                  <Navbar.Brand className="ml-1">
+                    {isComplete ? (
+                      <button
+                        onClick={finish}
+                        className="mr-3 underline text-black dark:text-white font-normal cursor-pointer"
+                      >
+                        {/* Download Certificate */}
+                      </button>
+                    ) : (
+                      <div className="w-7 h-7 mr-3">
+                        <CircularProgressbar
+                          value={percentage}
+                          text={`${percentage}%`}
+                          styles={buildStyles({
+                            rotation: 0.25,
+                            strokeLinecap: "butt",
+                            textSize: "20px",
+                            pathTransitionDuration: 0.5,
+                            pathColor: storedTheme === "true" ? "#fff" : "#000",
+                            textColor: storedTheme === "true" ? "#fff" : "#000",
+                            trailColor:
+                              storedTheme === "true" ? "grey" : "#d6d6d6",
+                          })}
+                        />
+                      </div>
+                    )}
+                    <TruncatedText text={mainTopic} len={6} />
+                  </Navbar.Brand>
+                  <div className="flex md:hidden justify-center items-center">
+                    <DarkModeToggle className="inline-flex items-center md:hidden" />
+                    {isSidebarOpen ? (
+                      <FiX
+                        onClick={toggleSidebar}
+                        className="mx-2"
+                        size={20}
+                        color={
+                          sessionStorage.getItem("darkMode") === "true"
+                            ? "white"
+                            : "black"
+                        }
+                      />
+                    ) : (
+                      <FiMenu
+                        onClick={toggleSidebar}
+                        className="mx-2"
+                        size={20}
+                        color={
+                          sessionStorage.getItem("darkMode") === "true"
+                            ? "white"
+                            : "black"
+                        }
+                      />
+                    )}
+                  </div>
+                  <Navbar.Collapse>
+                    <div className="hidden md:flex justify-center items-center mb-2 mt-2">
+                      <DarkModeToggle />
+                    </div>
+                  </Navbar.Collapse>
+                </Navbar>
+              </div>
+              <Sidebar
+                aria-label="Default sidebar example"
+                theme={storedTheme}
+                className={`md:border-r md:border-black md:dark:border-white dark:bg-black fixed inset-y-0 left-0 w-64 bg-white z-50 overflow-y-auto transition-transform transform lg:translate-x-0 ${
+                  isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+                }`}
+              >
+                <CourseLogoComponent isDarkMode={storedTheme} />
+                <Sidebar.Items className="mt-6">
+                  {jsonData &&
+                    renderTopicsAndSubtopics(jsonData[mainTopic.toLowerCase()])}
+                </Sidebar.Items>
+              </Sidebar>
+
+              <div className="px-8 bg-white dark:bg-black pt-5">
+                {/* sm & md */}
+                {showQuiz ? (
+                  <div className="w-full min-h-[90vh] bg-white  dark:bg-black flex items-center justify-center">
+                    <Quiz
+                      courseTitle={mainTopic}
+                      onCompletion={() => {
+                        // Handle quiz completion
+                        // console.log(`Quiz completed`);
+                        // You might want to update some state or show a completion message
+                      }}
+                      courseId={courseId}
+                      userId={userUID}
+                    />
+                  </div>
+                ) : showProjects ? (
+                  <Projects courseTitle={mainTopic} userId={userUID} />
+                ) : (
+                  <>
+                    <p className="font-black text-black dark:text-white text-xl">
+                      {selected}
+                    </p>
+                    <div className="overflow-hidden mt-5 text-black dark:text-white text-base pb-10 max-w-full">
+                      {type === "video & text course" ? (
+                        <div>
+                          <div className="relative aspect-video w-full max-w-[100vw] mb-5">
+                            <iframe
+                              src={`https://www.youtube.com/embed/${media}`}
+                              title="YouTube video player"
+                              className="absolute top-0 left-0 w-full h-full"
+                              frameBorder="0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            ></iframe>
+                          </div>
+                          <StyledText text={theory} aiExplanation={aiExplanation} handleAIGeneratedExplanation={handleAIGeneratedExplanation} isLoading={isLoading} type={type} />
+                          {/* <button>AI Generated Text</button> */}
+                        </div>
+                      ) : (
+                        <div>
+                          <StyledText text={theory} aiExplanation={aiExplanation} handleAIGeneratedExplanation={handleAIGeneratedExplanation} isLoading={isLoading} type={type} />
+                          <img
+                            className="overflow-hidden p-10"
+                            src={media}
+                            alt="Media"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="flex bg-white dark:bg-black flex-row overflow-y-auto h-screen max-md:hidden">
+            <Sidebar theme={storedTheme} aria-label="Default sidebar example">
+              <CourseLogoComponent isDarkMode={storedTheme} />
+              <Sidebar.Items className="mt-6">
+                {jsonData &&
+                  renderTopicsAndSubtopics(jsonData[mainTopic.toLowerCase()])}
+              </Sidebar.Items>
+            </Sidebar>
+            <div className="overflow-y-auto flex-grow flex-col">
+              <Navbar
+                fluid
+                className="py-3 dark:bg-black bg-white border-black dark:border-white md:border-b"
+              >
+                <Navbar.Brand className="ml-1">
+                  {isComplete ? (
+                    <button
+                      onClick={finish}
+                      className="mr-3 underline text-black dark:text-white font-normal cursor-pointer"
+                    >
+                      {/* Download Certificate */}
+                    </button>
+                  ) : (
+                    <div className="w-8 h-8 mr-3">
+                      <CircularProgressbar
+                        value={percentage}
+                        text={`${percentage}%`}
+                        styles={buildStyles({
+                          rotation: 0.25,
+                          strokeLinecap: "butt",
+                          textSize: "20px",
+                          pathTransitionDuration: 0.5,
+                          pathColor: storedTheme === "true" ? "#fff" : "#000",
+                          textColor: storedTheme === "true" ? "#fff" : "#000",
+                          trailColor:
+                            storedTheme === "true" ? "grey" : "#d6d6d6",
+                        })}
+                      />
+                    </div>
+                  )}
+                  <TruncatedText text={mainTopic} len={10} />
+                </Navbar.Brand>
+                <Navbar.Collapse>
+                  <div className="hidden md:flex justify-center items-center mb-2 mt-2">
+                    <DarkModeToggle />
+                  </div>
+                </Navbar.Collapse>
+              </Navbar>
+              <div className="px-8 bg-white dark:bg-black pt-5">
+                {showQuiz ? (
+                  <div className="w-full min-h-[80vh] bg-white dark:bg-black flex items-center justify-center">
+                    <Quiz
+                      courseTitle={mainTopic}
+                      onCompletion={() => {
+                        // Handle quiz completion
+                        // console.log(`Quiz completed`);
+                        // You might want to update some state or show a completion message
+                      }}
+                      courseId={courseId}
+                      userId={userUID}
+                    />
+                  </div>
+                ) : showProjects ? (
+                  <Projects courseTitle={mainTopic} userId={userUID} />
+                ) : (
+                  <>
+                    <p className="font-black text-black dark:text-white text-xl">
+                      {selected}
+                    </p>
+                    <div className="overflow-hidden  mt-5 text-black dark:text-white text-base pb-10 max-w-full">
+                      {type === "video & text course" ? (
+                        <div className="w-full">
+                          <div className="relative aspect-video w-full max-w-[60vw] max-h-[60vh] mb-5">
+                            <iframe
+                              src={`https://www.youtube.com/embed/${media}`}
+                              title="YouTube video player"
+                              className="absolute top-0 left-0 w-full h-full"
+                              frameBorder="0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            ></iframe>
+                          </div>
+
+                          <StyledText text={theory} aiExplanation={aiExplanation} handleAIGeneratedExplanation={handleAIGeneratedExplanation} isLoading={isLoading} type={type} />
+
+                          
+                        </div>
+                      ) : (
+                        <div>
+                          <StyledText text={theory} aiExplanation={aiExplanation} handleAIGeneratedExplanation={handleAIGeneratedExplanation} isLoading={isLoading} type={type} />
+                          <img
+                            className="overflow-hidden p-10"
+                            src={media}
+                            alt="Media"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+          <Drawer
+            open={isOpenDrawer}
+            className="z-50 no-scrollbar bg-white dark:bg-black"
+            position="right"
+            onClose={handleOnClose}
+          >
+            <div
+              style={{ height: "calc(100% - 50px)", overflowY: "auto" }}
+              className="no-scrollbar"
+            >
+              {messages.map((msg, index) => (
+                <div
+                  key={index}
+                  style={{
+                    alignItems:
+                      msg.sender === "user" ? "flex-end" : "flex-start",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
+                  <div
+                    style={{
+                      borderBottomLeftRadius: 5,
+                      borderBottomRightRadius: 5,
+                      borderTopLeftRadius: msg.sender === "user" ? 5 : 0,
+                      borderTopRightRadius: msg.sender === "user" ? 0 : 5,
+                      overflow: "hidden",
+                    }}
+                  >
+                    {msg.sender === "user" ? (
+                      <div
+                        style={{
+                          backgroundColor:
+                            storedTheme === "true" ? "#F9F9F9" : "#282C34",
+                          padding: 16,
+                          color: storedTheme === "true" ? "#01020A" : "#fff",
+                          margin: 4,
+                        }}
+                        className="text-black dark:text-white text-xs"
+                        dangerouslySetInnerHTML={{ __html: msg.text }}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          backgroundColor:
+                            storedTheme === "true" ? "#01020A" : "#F9F9F9",
+                          padding: 16,
+                          color: storedTheme === "true" ? "#fff" : "#01020A",
+                          margin: 4,
+                        }}
+                        className="text-black dark:text-white text-xs "
+                        dangerouslySetInnerHTML={{ __html: msg.text }}
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-row mt-4">
+              <input
+                value={newMessage}
+                placeholder="Ask Something..."
+                onChange={(e) => setNewMessage(e.target.value)}
+                className="h-12 focus:ring-black focus:border-black border border-black font-normal bg-white rounded-none block w-full dark:bg-black dark:border-white dark:text-white"
+                type="text"
+              />
+              <div
+                onClick={sendMessage}
+                className="h-12 text-black dark:text-white ml-2 content-center"
+              >
+                <IoSend size={20} />
+              </div>
+            </div>
+          </Drawer>
+        </div>
+      )}
+    </>
+  );
+};
+
+export default Course;
