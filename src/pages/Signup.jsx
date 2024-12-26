@@ -78,12 +78,13 @@ const SignUp = () => {
       return;
     }
 
-    const postURL = "/api/signup";
+    const postURL = "http://edtech-api.cehpoint.co.in:5000/api/signup";
     const type = "free";
     try {
       setProcessing(true);
 
       // Create user in Firebase
+      console.log(auth,email,password)
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -93,8 +94,10 @@ const SignUp = () => {
       const uid = user.uid;
 
       // Send user data to your backend
-      const firebaseApiKey = import.meta.env.VITE_FIREBASE_API_KEY;
-      const unsplashApiKey = import.meta.env.VITE_UNSPLASH_API_KEY;
+      // const firebaseApiKey = import.meta.env.VITE_FIREBASE_API_KEY;
+      // const unsplashApiKey = import.meta.env.VITE_UNSPLASH_API_KEY;
+      const firebaseApiKey = import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyAW6hNfPMhiouV7ZZ_IzYI6szTBUpy94Zw';
+      const unsplashApiKey = import.meta.env.VITE_UNSPLASH_API_KEY || '22M-u1gGFhZq45Oaf1Rs7-53PD9eZXOZWkZNT_kOj2Y';
       const response = await axiosInstance.post(postURL, {
         email,
         mName,
@@ -105,7 +108,7 @@ const SignUp = () => {
         apiKey: firebaseApiKey, // Use environment variable
         unsplashApiKey: unsplashApiKey, // Use environment variable
       });
-      // console.log()
+      console.log("user sign up :",response)
       if (response.data.success) {
         showToast(response.data.message);
         sessionStorage.setItem("email", email);
@@ -123,10 +126,10 @@ const SignUp = () => {
         showToast(response.data.message);
       }
     } catch (error) {
-      // console.error(
-      //   "Signup error:",
-      //   error.response ? error.response.data : error
-      // );
+      console.error(
+        "Signup error:",
+        error.response ? error.response.data : error
+      );
       showToast("Signup failed. Please try again.");
     } finally {
       setProcessing(false);
@@ -181,7 +184,7 @@ const SignUp = () => {
                 
                 </html>`,
       };
-      const postURL = "/api/data";
+      const postURL = "http://edtech-api.cehpoint.co.in:5000/api/signup";
       await axiosInstance
         .post(postURL, dataToSend)
         .then((res) => {
@@ -242,7 +245,7 @@ const SignUp = () => {
                     className="focus:ring-black focus:border-black border border-black font-normal bg-white rounded-none block w-full dark:bg-black dark:border-white dark:text-white"
                     id="name1"
                     type="text"
-                    disabled={true}
+                    disabled={false}
                   />
                 </div>
                 <div className="mb-6">
@@ -251,7 +254,7 @@ const SignUp = () => {
                       className="font-bold text-black dark:text-white"
                       htmlFor="email1"
                       value="Email"
-                      disabled={true}
+                      disabled={false}
                     />
                   </div>
                   <input
@@ -260,7 +263,7 @@ const SignUp = () => {
                     className="focus:ring-black focus:border-black border border-black font-normal bg-white rounded-none block w-full dark:bg-black dark:border-white dark:text-white"
                     id="email1"
                     type="email"
-                    disabled={true}
+                    disabled={false}
                   />
                 </div>
                 <div className="mb-7">
@@ -269,7 +272,7 @@ const SignUp = () => {
                       className="font-bold text-black dark:text-white"
                       htmlFor="password1"
                       value="Password"
-                      disabled={true}
+                      disabled={false}
                     />
                   </div>
                   <input
@@ -278,7 +281,7 @@ const SignUp = () => {
                     className="focus:ring-black focus:border-black border border-black font-normal bg-white rounded-none block w-full dark:bg-black dark:border-white dark:text-white"
                     id="password1"
                     type="password"
-                    disabled={true}
+                    disabled={false}
                   />
                 </div>
 
@@ -290,7 +293,7 @@ const SignUp = () => {
                     }
                     className="items-center justify-center text-center dark:bg-white dark:text-black bg-black text-white font-bold rounded-none w-full enabled:hover:bg-black enabled:focus:bg-black enabled:focus:ring-transparent dark:enabled:hover:bg-white dark:enabled:focus:bg-white dark:enabled:focus:ring-transparent"
                     type="submit"
-                    disabled={true}
+                    disabled={false}
                   >
                     Submit
                   </Button>

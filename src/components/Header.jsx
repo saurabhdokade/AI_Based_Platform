@@ -62,9 +62,9 @@ const Header = ({ isHome }) => {
     showToast("Logout Successful");
     redirectSignIn();
   }
-  // function redirectPricing() {
-  //   navigate('/pricing', { state: { header: true } });
-  // }
+  function redirectPricing() {
+    navigate('/pricing', { state: { header: true } });
+  }
   // function redirectPricingTwo() {
   //   navigate('/pricing', { state: { header: false } });
   // }
@@ -72,7 +72,7 @@ const Header = ({ isHome }) => {
   const fetchProfile = async () => {
     try {
       const response = await axiosInstance.get(
-        `/api/user/getProfile?uid=${firebase_id}`
+        `http://edtech-api.cehpoint.co.in:5000/api/user/getProfile?uid=${firebase_id}`
       );
 
       if (response.data.success) {
@@ -128,7 +128,7 @@ const Header = ({ isHome }) => {
               <div className="hidden md:flex justify-center items-center">
                 <DarkModeToggle />
               </div>
-              {/* <Navbar.Link className='border-b-0 text-black cursor-pointer font-normal mb-2 mt-2 dark:text-white  hover:bg-white dark:hover:bg-black hover:text-black md:hover:text-black dark:hover:text-white dark:md:hover:text-white' style={{ paddingLeft: '0px', paddingRight: '0px', paddingBottom: '10px', paddingTop: '10px' }} onClick={redirectPricingTwo}>Pricing</Navbar.Link> */}
+              <Navbar.Link className='border-b-0 text-black cursor-pointer font-normal mb-2 mt-2 dark:text-white  hover:bg-white dark:hover:bg-black hover:text-black md:hover:text-black dark:hover:text-white dark:md:hover:text-white' style={{ paddingLeft: '0px', paddingRight: '0px', paddingBottom: '10px', paddingTop: '10px' }} onClick={redirectPricingTwo}>Pricing</Navbar.Link>
               <Navbar.Link
                 className="border-b-0 text-black cursor-pointer font-normal mb-2 mt-2 dark:text-white hover:bg-white dark:hover:bg-black hover:text-black md:hover:text-black dark:hover:text-white dark:md:hover:text-white cursor-pointer"
                 style={{

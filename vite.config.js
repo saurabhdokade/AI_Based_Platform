@@ -6,17 +6,15 @@ import path from "path";
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
-
-  // Use domain link for API_URL
-  const API_URL = env.VITE_API_URL || "http://edtech-api.cehpoint.co.in:5000"; // Update if needed
-
+  const API_URL = `${env.VITE_API_URL ?? "http://edtech-api.cehpoint.co.in:5000"}`;
+  
   return {
     plugins: [
       react({
         jsxImportSource: '@emotion/react',
         babel: {
-          plugins: ['@emotion/babel-plugin'],
-        },
+          plugins: ['@emotion/babel-plugin']
+        }
       }),
       VitePWA({
         manifest: {
@@ -45,33 +43,25 @@ export default defineConfig(({ mode }) => {
           background_color: "#ffffff",
         },
         workbox: {
-          maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
+          maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // Set to 3 MiB or higher
         },
       }),
     ],
-    server: {
-      host: '0.0.0.0', // Allow access from all network interfaces (local testing)
-      port: 5173, // Vite default port
-      open: false, // Don't auto-open the browser
-      hmr: {
-        host: 'edtech-api.cehpoint.co.in', // Use your domain for HMR
-      },
-      watch: {
-        usePolling: true, // Useful for environments like Docker
-      },
-    },
     resolve: {
       alias: {
         "@": path.resolve("./src"),
       },
     },
+    optimizeDeps: {
+      exclude: ['pdfjs-dist']
+    },
     build: {
-      chunkSizeWarningLimit: 600,
+      chunkSizeWarningLimit: 600, // Optionally increase the chunk size warning limit
       rollupOptions: {
         output: {
           manualChunks: (id) => {
             if (id.includes('node_modules')) {
-              return id.toString().split('node_modules/')[1].split('/')[0];
+              return id.toString().split('node_modules/')[1].split('/')[0].toString(); // Create a chunk for each npm package
             }
           },
         },

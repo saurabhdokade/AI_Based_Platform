@@ -60,7 +60,7 @@ const SignIn = () => {
       showToast("Please fill in all required fields");
       return;
     }
-    const postURL = `/api/signin`;
+    const postURL = `http://edtech-api.cehpoint.co.in:5000/api/signin`;
 
     try {
       setProcessing(true);
@@ -94,10 +94,15 @@ const SignIn = () => {
         }
         redirectHome();
       } else {
+       
         showToast(res.data.message);
       }
     } catch (error) {
-      // console.error("Error:", error.message);
+      console.error(
+        "Signup error:",
+        error.res ? error.res.data : error
+      );
+      console.error("Error:", error.message);
       showToast("Sign-in failed. Please try again.");
     } finally {
       setProcessing(false);
@@ -138,7 +143,7 @@ const SignIn = () => {
                       className="font-bold text-black dark:text-white"
                       htmlFor="email1"
                       value="Email"
-                      disabled={true}
+                      // disabled={true}
                     />
                   </div>
                   <input
@@ -146,7 +151,7 @@ const SignIn = () => {
                     className="focus:ring-black focus:border-black border border-black font-normal bg-white rounded-none block w-full dark:bg-black dark:border-white dark:text-white"
                     id="email1"
                     type="email"
-                    disabled={true}
+                    // disabled={true}
                   />
                 </div>
                 <div className="mb-4">
@@ -155,7 +160,7 @@ const SignIn = () => {
                       className="font-bold text-black dark:text-white"
                       htmlFor="password1"
                       value="Password"
-                      disabled={true}
+                      // disabled={true}
                       
                     />
                   </div>
@@ -164,14 +169,14 @@ const SignIn = () => {
                     className="focus:ring-black focus:border-black border border-black font-normal bg-white rounded-none block w-full dark:bg-black dark:border-white dark:text-white"
                     id="password1"
                     type="password"
-                    disabled={true}
+                    // disabled={true}
                   />
                 </div>
                 <div className="flex items-center mb-7">
                   <button
                     onClick={redirectForgot}
                     className={`text-center font-normal text-black underline dark:text-white disabled:text-gray-400 dark:disabled:text-gray-400`}
-                    disabled={true}
+                    // disabled={true}
                   >
                     Forgot Password ?
                   </button>
@@ -183,7 +188,7 @@ const SignIn = () => {
                   }
                   className="items-center justify-center text-center dark:bg-white dark:text-black bg-black text-white font-bold rounded-none w-full enabled:hover:bg-black enabled:focus:bg-black enabled:focus:ring-transparent dark:enabled:hover:bg-white dark:enabled:focus:bg-white dark:enabled:focus:ring-transparent"
                   type="submit"
-                  disabled={true}
+                  // disabled={true}
                 >
                   Submit
                 </Button>

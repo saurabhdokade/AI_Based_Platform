@@ -262,7 +262,7 @@ Please output the list in the following valid JSON format strictly in English, w
         userApiKey: userApiKey,
       };
 
-      const postURL = "/api/prompt";
+      const postURL = "http://edtech-api.cehpoint.co.in:5000/api/prompt";
       const res = await axiosInstance.post(postURL, dataToSend);
 
       const generatedText = res.data.generatedText;
@@ -285,8 +285,8 @@ Please output the list in the following valid JSON format strictly in English, w
         },
       });
     } catch (error) {
-      // console.error("Error in sendPrompt:", error);
-      // setProcessing(false);
+      console.error("Error in sendPrompt:", error);
+      setProcessing(false);
 
       if (error.response) {
         const errorMessage = error.response.data.error;
@@ -568,3 +568,15 @@ Please output the list in the following valid JSON format strictly in English, w
 };
 
 export default Create;
+
+
+
+
+
+
+
+
+
+
+
+
