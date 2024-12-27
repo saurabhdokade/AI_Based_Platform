@@ -7,7 +7,7 @@ import DarkModeToggle from "../components/DarkModeToggle";
 import TruncatedText from "../components/TruncatedText";
 import { useLocation, useNavigate } from "react-router-dom";
 import { IoIosArrowDown } from "react-icons/io";
-import StyledText from "../components/styledText";
+import StyledText from "../components/StyledText";
 import YouTube from "react-youtube";
 import { toast } from "react-toastify";
 import { logo, name } from "../constants";
