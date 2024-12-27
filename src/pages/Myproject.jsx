@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import Header from "../components/header";
-import Footers from "../components/footers";
+import Header from "../components/Header";
+import Footers from "../components/Footers";
 import axiosInstance from "../axios";
 import found from "@/assets/found.svg";
 

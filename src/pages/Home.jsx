@@ -1,7 +1,7 @@
 import React from 'react';
 import Header from '../components/Header';
 import Footers from '../components/Footers';
-import UserCourses from '../components/usercourses';
+import UserCourses from '../components/Usercourses';
 import axiosInstance from "../axios";
 import { useEffect } from 'react';
 // import { getAuth } from 'firebase/auth';

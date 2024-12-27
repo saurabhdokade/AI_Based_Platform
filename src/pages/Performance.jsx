@@ -9,8 +9,8 @@ import {
   Snackbar,
 } from "@mui/material";
 import { FaCheckCircle } from "react-icons/fa";
-import Header from "../components/header";
-import Footers from "../components/footers";
+import Header from "../components/Header";
+import Footers from "../components/Footers";
 import axiosInstance from "../axios";
 import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/dist/styles.css";
