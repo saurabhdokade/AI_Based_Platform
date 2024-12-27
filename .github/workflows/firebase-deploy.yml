@@ -24,10 +24,12 @@ jobs:
       - name: Build the project
         run: npm run build # Replace with your build command
 
-      - name: Install Firebase CLI
-        run: npm install -g firebase-tools
+      - name: Set up Firebase CLI
+  run: npm install -g firebase-tools
 
-      - name: Deploy to Firebase Hosting
-        env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-        run: firebase deploy --only hosting
+- name: Authenticate Firebase
+  run: firebase use --add
+  env:
+    FIREBASE_AUTH_TOKEN: ${{ secrets.FIREBASE_AUTH_TOKEN }} # Replace with your secret environment variable
+
+        
