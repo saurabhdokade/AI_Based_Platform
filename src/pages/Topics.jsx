@@ -92,7 +92,7 @@ const Topics = () => {
     };
   
     try {
-      const postURL = "/api/generate";
+      const postURL = "http://edtech-api.cehpoint.co.in:5000/api/generate";
       const res = await axiosInstance.post(postURL, dataToSend);
       const generatedText = res.data.text;
   

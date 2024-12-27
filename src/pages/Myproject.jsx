@@ -32,7 +32,7 @@ const MyProject = () => {
 
   const fetchProjects = async (uid) => {
     try {
-      const response = await axiosInstance.get(`/api/getmyprojects`);
+      const response = await axiosInstance.get(`http://edtech-api.cehpoint.co.in:5000/api/getmyprojects`);
       const filteredProjects = response.data.data.filter(
         (project) => project.firebaseUId === uid
       );
