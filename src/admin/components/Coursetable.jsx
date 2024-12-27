@@ -1,6 +1,6 @@
 import { Spinner, Table } from "flowbite-react";
 import React from "react";
-import NothingFound from "@/components/nothingfound";
+import NothingFound from "../../components/Nothingfound";
 
 const CourseTable = ({ datas, loading }) => {
   if (loading) {
