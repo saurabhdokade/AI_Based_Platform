@@ -1,6 +1,6 @@
 import React from 'react';
 import Header from '../components/Header';
-import Footers from '../components/footers';
+import Footers from '../components/Footers';
 import UserCourses from '../components/usercourses';
 import axiosInstance from "../axios";
 import { useEffect } from 'react';
