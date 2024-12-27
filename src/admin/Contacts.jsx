@@ -4,7 +4,7 @@ import { FiMenu, FiX } from "react-icons/fi";
 import AdminSidebar from "./components/Adminsidebar";
 import AdminHead from "./components/Adminhead";
 import AdminSidebarMobile from "./components/Adminsidebarmobile";
-import ContactTable from "./components/contacttable";
+import ContactTable from "./components/Contacttable";
 import axiosInstance from "../axios";
 
 const Contacts = () => {
