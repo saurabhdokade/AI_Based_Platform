@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Header from "../components/header";
+import Header from "../components/Header";
 import Footers from "../components/Footers";
 import { Button, Label } from "flowbite-react";
 import {
