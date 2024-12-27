@@ -4,7 +4,7 @@ import { FiMenu, FiX } from "react-icons/fi";
 import AdminSidebar from "./components/Adminsidebar";
 import AdminHead from "./components/Adminhead";
 import AdminSidebarMobile from "./components/Adminsidebarmobile";
-import CourseTable from "./components/coursetable";
+import CourseTable from "./components/Coursetable";
 import axiosInstance from "../axios";
 
 const Courses = () => {
