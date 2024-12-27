@@ -3,32 +3,38 @@ name: Deploy to Firebase Hosting
 on:
   push:
     branches:
-      - main # Replace with your branch name
-
+      - main  # Change this to your branch name, e.g., 'master' or 'production'
+  pull_request:
+    branches:
+      - main  # Change this to your branch name for PR-based deployment
+  
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Check out code
+        uses: actions/checkout@v2
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18' # Replace with your project's Node.js version
+          node-version: '16'  # Choose the appropriate Node version
 
       - name: Install dependencies
-        run: npm install
-
-      - name: Build the project
-        run: npm run build # Replace with your build command
+        run: |
+          npm install
+          npm run build  # If you have a build step, add it here
 
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
-      - name: Deploy to Firebase Hosting
+      - name: Authenticate with Firebase
+        run: firebase use --add
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          FIREBASE_AUTH_TOKEN: ${{ secrets.FIREBASE_AUTH_TOKEN }}  # Use the Firebase token from secrets
+
+      - name: Deploy to Firebase Hosting
         run: firebase deploy --only hosting
-        
+        env:
+          FIREBASE_AUTH_TOKEN: ${{ secrets.FIREBASE_AUTH_TOKEN }}  # Firebase authentication
