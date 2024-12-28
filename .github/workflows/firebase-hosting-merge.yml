@@ -20,4 +20,4 @@ jobs:
           firebaseServiceAccount: ${{
             secrets.FIREBASE_SERVICE_ACCOUNT_AI_BASED_TRAINING_PLATFO_CA895 }}
           channelId: live
-          projectId: ai-based-training-platfo-ca895
+          projectId: ai-based-training-saurabhdokade
