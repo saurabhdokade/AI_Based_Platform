@@ -5,6 +5,24 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
+    ],
+    "headers":[
+     {
+      "source":"/api/json",
+      "headers":[{
+        "key":"Access-Control-Allow-Origin",
+        "value":"*"
+      }]
+     }
     ]
+  },
+  "emulators": {
+    "hosting": {
+      "port": 5173
+    },
+    "ui": {
+      "enabled": true
+    },
+    "singleProjectMode": true
   }
 }
