@@ -236,7 +236,7 @@ const SignUp = () => {
                       className="font-bold text-black dark:text-white"
                       htmlFor="name1"
                       value="Name"
-                      disabled={true}
+                      disabled={false}
                     />
                   </div>
                   <input
