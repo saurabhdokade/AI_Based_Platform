@@ -132,9 +132,9 @@ const SignIn = () => {
               <h1 className="text-center font-black text-5xl text-black dark:text-white">
                 SignIn
               </h1>
-              <p className="text-center font-normal text-red-600 py-4 dark:text-red-400 animate-pulse">
+{/*               <p className="text-center font-normal text-red-600 py-4 dark:text-red-400 animate-pulse">
                 Email and password login is temporarily unavailable.
-              </p>
+              </p> */}
 
               <div className="py-5 max-md:px-10">
                 <div className="mb-6">
