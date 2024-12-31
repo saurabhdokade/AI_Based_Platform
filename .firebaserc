@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "ai-based-training-platfo-ca895"
-  }
+    "default": "ai-based-training-platfo-ca895",
+    // "edtech-api.cehpoint.co.in": "ai-based-training-platfo-ca895"
+  },
+  "targets": {},
+  "etags": {}
 }
