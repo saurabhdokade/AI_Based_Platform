@@ -143,7 +143,7 @@ const SignIn = () => {
                       className="font-bold text-black dark:text-white"
                       htmlFor="email1"
                       value="Email"
-                      disabled={false}
+                      disabled={true}
                     />
                   </div>
                   <input
@@ -151,7 +151,7 @@ const SignIn = () => {
                     className="focus:ring-black focus:border-black border border-black font-normal bg-white rounded-none block w-full dark:bg-black dark:border-white dark:text-white"
                     id="email1"
                     type="email"
-                    disabled={false}
+                    disabled={true}
                   />
                 </div>
                 <div className="mb-4">
@@ -160,7 +160,7 @@ const SignIn = () => {
                       className="font-bold text-black dark:text-white"
                       htmlFor="password1"
                       value="Password"
-                      disabled={false}
+                      disabled={true}
                       
                     />
                   </div>
@@ -169,14 +169,14 @@ const SignIn = () => {
                     className="focus:ring-black focus:border-black border border-black font-normal bg-white rounded-none block w-full dark:bg-black dark:border-white dark:text-white"
                     id="password1"
                     type="password"
-                    disabled={false}
+                    disabled={true}
                   />
                 </div>
                 <div className="flex items-center mb-7">
                   <button
                     onClick={redirectForgot}
                     className={`text-center font-normal text-black underline dark:text-white disabled:text-gray-400 dark:disabled:text-gray-400`}
-                    disabled={false}
+                    disabled={true}
                   >
                     Forgot Password ?
                   </button>
@@ -188,7 +188,7 @@ const SignIn = () => {
                   }
                   className="items-center justify-center text-center dark:bg-white dark:text-black bg-black text-white font-bold rounded-none w-full enabled:hover:bg-black enabled:focus:bg-black enabled:focus:ring-transparent dark:enabled:hover:bg-white dark:enabled:focus:bg-white dark:enabled:focus:ring-transparent"
                   type="submit"
-                  disabled={false}
+                  disabled={true}
                 >
                   Submit
                 </Button>
