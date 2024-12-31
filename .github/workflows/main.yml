@@ -4,7 +4,7 @@ on:
     types: [created, edited]
   push:
     branches:
-      - ariba
+      - main
 jobs:
   build:
     name: Build
@@ -13,7 +13,7 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v2.3.2
         with:
-          branch: ariba
+          branch: main
       - name: Install Dependencies
         run: npm install
       - name: Build
@@ -40,6 +40,6 @@ jobs:
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@master
         with:
-          args: deploy --only hosting:ai-based-training-by-ariba-2d081
+          args: deploy --only hosting:ai-based-training-platfo-ca895
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
