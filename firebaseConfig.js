@@ -6,7 +6,7 @@ import { getStorage } from "firebase/storage"; // Add this import
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyAW6hNfPMhiouV7ZZ_IzYI6szTBUpy94Zw",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "ai-skill-enhancement-and-job-readiness.cehpoint.co.in",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "https://ai-based-training-platfo-ca895.web.app",
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "ai-based-training-platfo-ca895",
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "ai-based-training-platfo-ca895.appspot.com",
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "922681810547",
