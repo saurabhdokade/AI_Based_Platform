@@ -6,10 +6,13 @@
       "**/.*",
       "**/node_modules/**"
     ],
-    "rewrites": [
+    "headers":[
       {
-        "source": "**",
-        "destination": "/index.html"
+        "source":"/api.json",
+        "headers":[{
+          "key":"Access-Control-Allow-Origin",
+          "value":"*"
+        }]
       }
     ]
   },
