@@ -10,39 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Cache Node.js modules
-      - name: Cache Node.js modules
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      # Step 3: Set up Node.js environment
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18' # Replace with your project's Node.js version
 
-      # Step 4: Install dependencies
       - name: Install dependencies
-        run: npm ci # Using npm ci for faster and reliable installation in CI environments
+        run: npm install
 
-      # Step 5: Build the project
       - name: Build the project
-        run: npm run build # Replace with your build command if different
+        run: npm run build # Replace with your build command
 
-      # Step 6: Install Firebase CLI globally
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
-      # Step 7: Deploy to Firebase Hosting
       - name: Deploy to Firebase Hosting
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
         run: firebase deploy --only hosting
+        
