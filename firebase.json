@@ -6,13 +6,15 @@
       "**/.*",
       "**/node_modules/**"
     ],
-    "headers":[
+    "headers": [
       {
-        "source":"/api.json",
-        "headers":[{
-          "key":"Access-Control-Allow-Origin",
-          "value":"*"
-        }]
+        "source": "/api.json",
+        "headers": [
+          {
+            "key": "Access-Control-Allow-Origin",
+            "value": "*"
+          }
+        ]
       }
     ]
   },
